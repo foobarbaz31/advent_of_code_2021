@@ -17,7 +17,6 @@ function getRemainderBracketScore(bracketString: string): number {
     '>' : 4
   };
 
-  let score = 0;
   const chars = bracketString.split('');
   const stack: string[] = [];
   for (let char of chars) {
@@ -31,14 +30,10 @@ function getRemainderBracketScore(bracketString: string): number {
     }
   }
 
-  // we reached here means our string is not corrupt just incomplete
-  while(stack.length > 0) {
-    let currBrack = stack.pop();
-    if (currBrack) {
-      score = (score * 5 ) + bracketPoints[currBrack];
-    }
-  }
-  return score;
+  return stack.reverse().reduce((result, item) => {
+    result = ( result * 5) + bracketPoints[item];
+    return result;
+  }, 0);
 }
 
 function validateBrackets(bracketString: string): string | null {
@@ -65,34 +60,25 @@ function day10_part1(inputArray: string[]) {
     '>' : 25137
   };
 
-  let sum = 0;
-  for(let inputStr of inputArray) {
+  // let sum = 0;
+  return inputArray.reduce((result, inputStr) => {
     const illegalBrack = validateBrackets(inputStr);
     if (illegalBrack) {
-      sum += illegalPoints[illegalBrack];
+      result += illegalPoints[illegalBrack];
     }
-  }
-  return sum;
+    return result;
+  }, 0);
 }
 
 function day10_part2(inputArray: string[]) {
-  let scoresArray = [];
-  for(let inputStr of inputArray) {
-    let score = getRemainderBracketScore(inputStr);
-    scoresArray.push(score);
-  }
-
-  const updatedScores = scoresArray.filter((item) => item !== -1)
+  const updatedScores =  inputArray
+    .map((item) => getRemainderBracketScore(item))
+    .filter((item) => item !== -1)
     .sort((a, b) => {
       if (a > b) return 1;
       if (a < b) return -1;
       else return 0;
-    });
-  // const sortedScores = updatedScores.sort((a, b) => {
-  //   if (a > b) return 1;
-  //   if (a < b) return -1;
-  //   else return 0;
-  // });
+    })
   return updatedScores[Math.floor(updatedScores.length/2)];
 }
 
